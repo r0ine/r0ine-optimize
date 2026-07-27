@@ -4,45 +4,37 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-LLM'lere gonderdigin token miktarini azaltan kutuphane + CLI. `clorfy-prompt`'un
-kardesi — clorfy ailesinin token tasarrufu tarafi.
+A lightweight library + CLI that reduces the number of tokens you send to LLMs. Part of the **clorfy** AI tooling family.
 
-## Ne yapiyor?
+## What it does
 
-Uc temel mekanizma:
+Three core mechanisms:
 
-- **Onbellekleme** — ayni mesaj listesi + ayni model tekrar geldiginde modele hic gitmeden diskten
-  cevap doner (SQLite tabanli, TTL'li).
-- **Gecmis budama** — sohbet gecmisini bir token butcesine sigdirir: sistem mesajini ve son N turu
-  korur, gerekirse eskiden yeniye dogru kirpar.
-- **Profil motoru** — kod asistani, sohbet ve planlama senaryolarinin token profili farkli;
-  `code` / `chat` / `plan` profilleri bunun icin hazir varsayilanlar tasiyor.
+- **Response caching** — identical message list + same model returns from disk (SQLite, TTL-based) without hitting the model at all.
+- **History pruning** — fits conversation history into a token budget: keeps system messages and the last N turns, drops oldest first.
+- **Profile engine** — different use cases need different token profiles; `code` / `chat` / `plan` profiles carry ready-made defaults.
 
-Bunlarin ustune uc ek yetenek:
+Plus three additional capabilities:
 
-- **Pipeline** — optimizasyon adimlarini zincir halinde birlestiren composable arayuz
-  (dedup → system-merge → prune → truncate).
-- **Strateji modulleri** — mesaj tekillesitirme (dedup), uzun mesaj kirpma (truncate), coklu system
-  mesajlarini birlestirme (merge).
-- **Async destek** — `optimize_async` dekoratoru ile async LLM cagrilerina tam uyum.
+- **Pipeline** — composable middleware chain for optimization steps (dedup → system-merge → prune → truncate).
+- **Strategy modules** — message deduplication, per-message truncation, multi-system-message merging.
+- **Async support** — `optimize_async` decorator for async LLM calls.
 
-
-## Kurulum
+## Installation
 
 ```bash
 pip install clorfy-optimize
 ```
 
-Gercek tokenizer icin (`tiktoken` kurulu degilse karakter/4 yaklasik sayima dusulur):
+For real tokenization (falls back to ~4 chars/token if `tiktoken` isn't installed):
 
 ```bash
 pip install "clorfy-optimize[tiktoken]"
 ```
 
+## One-line integration
 
-## Tek satir entegrasyon
-
-Var olan bir LLM cagri fonksiyonunun ustune dekorator ekliyorsun, gerisini o hallediyor:
+Add the decorator on top of your existing LLM call function:
 
 ```python
 from clorfy_optimize import optimize
@@ -52,10 +44,9 @@ def call_llm(messages: list[dict]) -> str:
     return my_llm_client.chat(messages)
 ```
 
-`messages` argumani cagrilmadan once profile gore budanir, ayni istek daha once yapildiysa
-onbellekten donulur — fonksiyonun icine hic dokunmadin.
+The `messages` argument gets pruned according to the profile before your function runs. If the same request was made before, it returns from cache — you didn't touch the function internals at all.
 
-Async versiyonu:
+Async version:
 
 ```python
 from clorfy_optimize import optimize_async
@@ -65,7 +56,7 @@ async def call_llm(messages: list[dict]) -> str:
     return await my_async_client.chat(messages)
 ```
 
-Tasarrufu gormek icin:
+Check the savings:
 
 ```python
 call_llm(messages=history)
@@ -73,10 +64,9 @@ print(call_llm.optimization_report.as_dict())
 # {'calls': 1, 'cache_hits': 0, 'tokens_before': 812, 'tokens_after': 340, 'tokens_saved': 472}
 ```
 
+## Pipeline (composable optimization)
 
-## Pipeline (composable optimizasyon)
-
-Profil tabanli hazir zincir:
+Profile-based ready chain:
 
 ```python
 from clorfy_optimize import Pipeline
@@ -85,24 +75,24 @@ pipe = Pipeline("chat")  # merge_system -> deduplicate -> prune
 result = pipe.run(messages)
 
 print(result.tokens_before, "->", result.tokens_after)
-print(f"Tasarruf: %{result.savings_percent:.1f}")
-print(f"Adimlar: {result.steps_applied}")
+print(f"Savings: {result.savings_percent:.1f}%")
+print(f"Steps: {result.steps_applied}")
 ```
 
-Tamamen ozel zincir:
+Fully custom chain:
 
 ```python
 pipe = (
     Pipeline()
-    .merge_system()              # coklu system mesajlarini birlestir
-    .deduplicate(threshold=1.0)  # tekrar eden mesajlari at
-    .truncate(max_tokens_per_message=500)  # uzun mesajlari kirp
+    .merge_system()              # merge multiple system messages
+    .deduplicate(threshold=1.0)  # drop duplicate messages
+    .truncate(max_tokens_per_message=500)  # trim long messages
     .prune(keep_last=5, preserve_code=True, budget_tokens=4_000)
 )
 result = pipe.run(messages)
 ```
 
-Kendi optimizasyon adimini ekle:
+Add your own optimization step:
 
 ```python
 pipe = Pipeline().add_step("redact", lambda msgs: [
@@ -110,37 +100,27 @@ pipe = Pipeline().add_step("redact", lambda msgs: [
 ]).prune(keep_last=8, budget_tokens=6_000)
 ```
 
+## Strategies
 
-## Stratejiler
-
-Bagimsiz olarak da kullanilabilir:
+Use independently:
 
 ```python
 from clorfy_optimize import deduplicate, merge_system_messages, truncate_messages
 
-# Tekrar eden mesajlari cikar
 clean = deduplicate(messages, threshold=1.0)
-
-# Coklu system mesajlarini tek bir mesaja birlestir
 merged = merge_system_messages(messages)
-
-# Uzun mesajlari kirp
 truncated = truncate_messages(messages, max_tokens_per_message=300)
 ```
 
+## Profiles
 
-## Profiller
-
-| Profil | keep_last | preserve_code | cache_ttl | varsayilan butce |
+| Profile | keep_last | preserve_code | cache_ttl | default budget |
 |---|---|---|---|---|
-| `code` | 6 | evet | 6 saat | 12.000 token |
-| `chat` | 8 | hayir | 15 dakika | 6.000 token |
-| `plan` | 3 | evet | 24 saat | 20.000 token |
+| `code` | 6 | yes | 6 hours | 12,000 tokens |
+| `chat` | 8 | no | 15 minutes | 6,000 tokens |
+| `plan` | 3 | yes | 24 hours | 20,000 tokens |
 
-`code` profili kod bloklarini budamadan korur, `chat` sohbeti agresifce kisaltir,
-`plan` uzun planlama dokumanlarini uzun TTL ile onbellekte tutar.
-
-Kendi profilini de kurabilirsin:
+Custom profiles:
 
 ```python
 from clorfy_optimize import Profile
@@ -155,67 +135,39 @@ my_profile = Profile(
 pipe = Pipeline(my_profile)
 ```
 
-
 ## CLI
-
-Konusma gecmisini analiz et:
 
 ```bash
 clorfy-optimize analyze conversation.json --profile chat
-```
-
-Pipeline moduyla analiz:
-
-```bash
 clorfy-optimize analyze conversation.json --profile code --pipeline
-```
-
-Profilleri listele:
-
-```bash
 clorfy-optimize profiles
+clorfy-optimize cache stats
+clorfy-optimize cache purge
+clorfy-optimize cache clear
 ```
 
-Cache yonetimi:
-
-```bash
-clorfy-optimize cache stats    # boyut ve giris sayisi
-clorfy-optimize cache purge    # suresi dolmuslari temizle
-clorfy-optimize cache clear    # tum cache'i sil
-```
-
-
-## Mimari
+## Architecture
 
 ```
-clorfy-optimize/
-├── src/clorfy_optimize/
-│   ├── __init__.py          # public API
-│   ├── counter.py           # TokenCounter (tiktoken veya fallback)
-│   ├── cache.py             # ResponseCache (SQLite, TTL, stats)
-│   ├── pruner.py            # mesaj budama (budget + keep_last)
-│   ├── profiles.py          # CODE / CHAT / PLAN profilleri
-│   ├── strategies.py        # dedup, truncate, merge_system
-│   ├── pipeline.py          # Pipeline (composable zincir)
-│   ├── decorator.py         # @optimize (sync)
-│   ├── async_support.py     # @optimize_async
-│   └── cli.py               # Click CLI
-├── tests/                   # 30+ test
-├── examples/                # kullanim ornekleri
-└── .github/workflows/       # CI (Python 3.10-3.13, lint, typecheck)
+src/clorfy_optimize/
+├── counter.py           # TokenCounter (tiktoken or fallback)
+├── cache.py             # ResponseCache (SQLite, TTL, stats)
+├── pruner.py            # message pruning (budget + keep_last)
+├── profiles.py          # CODE / CHAT / PLAN profiles
+├── strategies.py        # dedup, truncate, merge_system
+├── pipeline.py          # Pipeline (composable chain)
+├── decorator.py         # @optimize (sync)
+├── async_support.py     # @optimize_async
+└── cli.py               # Click CLI
 ```
 
+## Limitations (v0.1)
 
-## Sinirlar (v0.1)
+- The `optimize()` decorator assumes the wrapped function returns plain text (`str`) — disable caching for streaming or structured (tool-call) responses.
+- Pruning is a deterministic rule engine; it doesn't call a summarization LLM (by design — a token-saving tool shouldn't spend tokens itself).
+- Without `tiktoken`, token counting is approximate (chars/4).
 
-- `optimize()` dekoratoru, sarmaladigi fonksiyonun duz metin (`str`) dondurdugunu varsayar —
-  streaming veya yapilandirilmis (tool-call) yanitlar icin onbellekleme devre disi birakilmali.
-- Budama deterministik bir kural motoru; gercek bir ozetleme LLM'i cagirmiyor (bu bilincli bir
-  tercih — token tasarrufu yapan bir arac kendisi token harcayip modele bagimli olmamali).
-- `tiktoken` kurulu degilse token sayimi yaklasik (karakter/4).
-
-
-## Gelistirme
+## Development
 
 ```bash
 pip install -e ".[dev]"
@@ -224,18 +176,48 @@ ruff check src tests
 mypy src/clorfy_optimize --ignore-missing-imports
 ```
 
+## clorfy family
 
-## clorfy ailesi
-
-| Proje | Amac |
+| Project | Purpose |
 |---|---|
-| **clorfy-prompt** | Prompt muhendisligi ve optimizasyonu |
-| **clorfy-optimize** | Token tasarrufu (budama, onbellek, pipeline) |
-| *clorfy-memory* | Uzun sureli LLM hafiza yonetimi (planlaniyor) |
-| *clorfy-router* | Coklu model yonlendirme (planlaniyor) |
-| *clorfy-guard* | LLM cikti guvenlik filtreleri (planlaniyor) |
+| **clorfy-ai** | Prompt engineering and optimization |
+| **clorfy-optimize** | Token savings (pruning, caching, pipelines) |
+| *clorfy-memory* | Long-term LLM memory management (planned) |
+| *clorfy-router* | Multi-model routing (planned) |
+| *clorfy-guard* | LLM output safety filters (planned) |
 
-
-## Lisans
+## License
 
 MIT
+
+---
+
+## Turkce
+
+LLM'lere gonderdigin token miktarini azaltan kutuphane + CLI. **clorfy** AI arac ailesinin token tasarrufu tarafi.
+
+Uc temel mekanizma: yanit onbellekleme (SQLite + TTL), gecmis budama (butce + son N tur), senaryo profilleri (code/chat/plan). Ustune Pipeline ile composable optimizasyon zincirleri, strateji modulleri (dedup, truncate, merge) ve async dekorator destegi.
+
+Kurulum: `pip install clorfy-optimize`
+
+Tek satirda entegrasyon:
+
+```python
+from clorfy_optimize import optimize
+
+@optimize(profile="chat")
+def call_llm(messages: list[dict]) -> str:
+    return my_llm_client.chat(messages)
+```
+
+Pipeline kullanimi:
+
+```python
+from clorfy_optimize import Pipeline
+
+pipe = Pipeline("chat")
+result = pipe.run(messages)
+print(f"Tasarruf: %{result.savings_percent:.1f}")
+```
+
+Detayli dokumantasyon icin yukariyi okuyun.
