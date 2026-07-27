@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling>=1.24"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clorfy-optimize"
+version = "0.1.0"
+description = "LLM token kullanımını azaltan kütüphane ve CLI — kod/sohbet/plan senaryoları için hazır profiller."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Kemal", email = "kemgen01@gmail.com" }]
+keywords = ["llm", "token-optimization", "prompt-caching", "context-pruning", "clorfy"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
+dependencies = [
+    "click>=8.1",
+    "rich>=13.7",
+    "platformdirs>=4.2",
+]
+
+[project.optional-dependencies]
+tiktoken = ["tiktoken>=0.7"]
+dev = [
+    "pytest>=8.2",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.11",
+]
+
+[project.scripts]
+clorfy-optimize = "clorfy_optimize.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/clorfy/clorfy-optimize"
+Repository = "https://github.com/clorfy/clorfy-optimize"
+Issues = "https://github.com/clorfy/clorfy-optimize/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/clorfy_optimize"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]
