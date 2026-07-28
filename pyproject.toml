@@ -9,7 +9,7 @@ description = "LLM token kullanimi azaltan kutuphane ve CLI"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
-authors = [{ name = "Kemal", email = "kemgen01@gmail.com" }]
+authors = [{ name = "Kemal", email = "r0ine@outlook.com" }]
 keywords = ["llm", "token-optimization", "prompt-caching", "context-pruning", "r0ine"]
 classifiers = [
     "Development Status :: 3 - Alpha",
