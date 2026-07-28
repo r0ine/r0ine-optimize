@@ -18,7 +18,7 @@ console = Console()
 
 @click.group()
 def app() -> None:
-    """clorfy-optimize: LLM token kullanimi azaltan kutuphane ve CLI."""
+    """r0ine-optimize: LLM token kullanimi azaltan kutuphane ve CLI."""
 
 
 @app.command()
@@ -53,7 +53,7 @@ def analyze(messages_file: Path, profile: str, model: str, use_pipeline: bool) -
     saved = before - after
     percent = (saved / before * 100) if before else 0.0
 
-    table = Table(title=f"clorfy-optimize · profil={profile}")
+    table = Table(title=f"r0ine-optimize · profil={profile}")
     table.add_column("Metrik")
     table.add_column("Deger", justify="right")
     table.add_row("Mesaj sayisi (once)", str(len(messages)))
@@ -71,7 +71,7 @@ def profiles() -> None:
     """Kullanilabilir profilleri ve varsayilan ayarlarini listeler."""
     from .profiles import CHAT, CODE, PLAN
 
-    table = Table(title="clorfy-optimize profilleri")
+    table = Table(title="r0ine-optimize profilleri")
     table.add_column("Profil")
     table.add_column("keep_last", justify="right")
     table.add_column("preserve_code")
@@ -97,7 +97,7 @@ def cache_stats() -> None:
     info = rc.size()
     rc.close()
 
-    table = Table(title="clorfy-optimize cache")
+    table = Table(title="r0ine-optimize cache")
     table.add_column("Metrik")
     table.add_column("Deger", justify="right")
     table.add_row("Giris sayisi", str(info["entries"]))

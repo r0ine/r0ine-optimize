@@ -10,7 +10,7 @@ from platformdirs import user_cache_dir
 
 
 def _default_db_path() -> Path:
-    base = Path(user_cache_dir("clorfy-optimize", "clorfy"))
+    base = Path(user_cache_dir("r0ine-optimize", "r0ine"))
     base.mkdir(parents=True, exist_ok=True)
     return base / "cache.sqlite3"
 

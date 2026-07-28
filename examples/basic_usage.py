@@ -5,7 +5,7 @@ LLM cagri fonksiyonunun ustune eklenen dekorator, mesaj gecmisini profile gore
 budar ve tekrar edenleri onbellekten doner.
 """
 
-from clorfy_optimize import optimize
+from r0ine_optimize import optimize
 
 
 @optimize(profile="chat")

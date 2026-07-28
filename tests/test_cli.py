@@ -2,7 +2,7 @@ import json
 
 from click.testing import CliRunner
 
-from clorfy_optimize.cli import app
+from r0ine_optimize.cli import app
 
 
 def test_analyze_command_reports_savings(tmp_path):

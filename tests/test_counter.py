@@ -1,4 +1,4 @@
-from clorfy_optimize.counter import TokenCounter
+from r0ine_optimize.counter import TokenCounter
 
 
 def test_count_empty_string_is_zero():

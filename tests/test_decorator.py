@@ -1,7 +1,7 @@
 import pytest
 
-from clorfy_optimize.cache import ResponseCache
-from clorfy_optimize.decorator import optimize
+from r0ine_optimize.cache import ResponseCache
+from r0ine_optimize.decorator import optimize
 
 
 def test_optimize_caches_repeated_calls(tmp_path):

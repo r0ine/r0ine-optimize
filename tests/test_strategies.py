@@ -1,4 +1,4 @@
-from clorfy_optimize.strategies import deduplicate, merge_system_messages, truncate_messages
+from r0ine_optimize.strategies import deduplicate, merge_system_messages, truncate_messages
 
 
 def _msg(role, content):

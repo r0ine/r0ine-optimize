@@ -2,8 +2,8 @@ import asyncio
 
 import pytest
 
-from clorfy_optimize.async_support import optimize_async
-from clorfy_optimize.cache import ResponseCache
+from r0ine_optimize.async_support import optimize_async
+from r0ine_optimize.cache import ResponseCache
 
 
 def test_async_decorator_caches(tmp_path):

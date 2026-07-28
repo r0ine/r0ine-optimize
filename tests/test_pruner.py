@@ -1,5 +1,5 @@
-from clorfy_optimize.counter import TokenCounter
-from clorfy_optimize.pruner import prune_messages
+from r0ine_optimize.counter import TokenCounter
+from r0ine_optimize.pruner import prune_messages
 
 
 def _turn(role: str, content: str) -> dict:

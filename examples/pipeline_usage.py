@@ -6,7 +6,7 @@ siraya dizmen icin composable bir arayuz sunar. Profile ile hazir zincirleme
 de kullanabilirsin, adim adim kendini de kurabilirsin.
 """
 
-from clorfy_optimize import Pipeline
+from r0ine_optimize import Pipeline
 
 
 # --- 1) Profile-tabanli pipeline (tek satirda) ---

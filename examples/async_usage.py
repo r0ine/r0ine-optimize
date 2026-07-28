@@ -7,7 +7,7 @@ arayuz sunar. optimize_async bu akisi destekler.
 
 import asyncio
 
-from clorfy_optimize import optimize_async
+from r0ine_optimize import optimize_async
 
 
 @optimize_async(profile="code")

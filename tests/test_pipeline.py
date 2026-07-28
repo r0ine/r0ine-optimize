@@ -1,4 +1,4 @@
-from clorfy_optimize.pipeline import Pipeline
+from r0ine_optimize.pipeline import Pipeline
 
 
 def _msg(role, content):

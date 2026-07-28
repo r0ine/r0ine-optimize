@@ -3,14 +3,14 @@ requires = ["hatchling>=1.24"]
 build-backend = "hatchling.build"
 
 [project]
-name = "clorfy-optimize"
+name = "r0ine-optimize"
 version = "0.1.0"
-description = "LLM token kullanımını azaltan kütüphane ve CLI — kod/sohbet/plan senaryoları için hazır profiller."
+description = "LLM token kullanimi azaltan kutuphane ve CLI"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 authors = [{ name = "Kemal", email = "kemgen01@gmail.com" }]
-keywords = ["llm", "token-optimization", "prompt-caching", "context-pruning", "clorfy"]
+keywords = ["llm", "token-optimization", "prompt-caching", "context-pruning", "r0ine"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -40,15 +40,15 @@ dev = [
 ]
 
 [project.scripts]
-clorfy-optimize = "clorfy_optimize.cli:app"
+r0ine-optimize = "r0ine_optimize.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/clorfy/clorfy-optimize"
-Repository = "https://github.com/clorfy/clorfy-optimize"
-Issues = "https://github.com/clorfy/clorfy-optimize/issues"
+Homepage = "https://github.com/r0ine/r0ine-optimize"
+Repository = "https://github.com/r0ine/r0ine-optimize"
+Issues = "https://github.com/r0ine/r0ine-optimize/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/clorfy_optimize"]
+packages = ["src/r0ine_optimize"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

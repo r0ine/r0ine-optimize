@@ -1,6 +1,6 @@
 import time
 
-from clorfy_optimize.cache import ResponseCache
+from r0ine_optimize.cache import ResponseCache
 
 
 def test_cache_miss_then_hit(tmp_path):

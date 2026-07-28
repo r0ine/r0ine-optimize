@@ -37,4 +37,4 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install -e ".[dev]"
-      - run: mypy src/clorfy_optimize --ignore-missing-imports
+      - run: mypy src/r0ine_optimize --ignore-missing-imports

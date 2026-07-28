@@ -1,10 +1,10 @@
-# clorfy-optimize
+﻿# r0ine-optimize
 
-[![CI](https://github.com/clorfy/clorfy-optimize/actions/workflows/ci.yml/badge.svg)](https://github.com/clorfy/clorfy-optimize/actions/workflows/ci.yml)
+[![CI](https://github.com/r0ine/r0ine-optimize/actions/workflows/ci.yml/badge.svg)](https://github.com/r0ine/r0ine-optimize/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://python.org)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-A lightweight library + CLI that reduces the number of tokens you send to LLMs. Part of the **clorfy** AI tooling family.
+A lightweight library + CLI that reduces the number of tokens you send to LLMs. Part of the **r0ine** AI tooling family.
 
 ## What it does
 
@@ -23,13 +23,13 @@ Plus three additional capabilities:
 ## Installation
 
 ```bash
-pip install clorfy-optimize
+pip install r0ine-optimize
 ```
 
 For real tokenization (falls back to ~4 chars/token if `tiktoken` isn't installed):
 
 ```bash
-pip install "clorfy-optimize[tiktoken]"
+pip install "r0ine-optimize[tiktoken]"
 ```
 
 ## One-line integration
@@ -37,7 +37,7 @@ pip install "clorfy-optimize[tiktoken]"
 Add the decorator on top of your existing LLM call function:
 
 ```python
-from clorfy_optimize import optimize
+from r0ine_optimize import optimize
 
 @optimize(profile="chat")
 def call_llm(messages: list[dict]) -> str:
@@ -49,7 +49,7 @@ The `messages` argument gets pruned according to the profile before your functio
 Async version:
 
 ```python
-from clorfy_optimize import optimize_async
+from r0ine_optimize import optimize_async
 
 @optimize_async(profile="code")
 async def call_llm(messages: list[dict]) -> str:
@@ -69,7 +69,7 @@ print(call_llm.optimization_report.as_dict())
 Profile-based ready chain:
 
 ```python
-from clorfy_optimize import Pipeline
+from r0ine_optimize import Pipeline
 
 pipe = Pipeline("chat")  # merge_system -> deduplicate -> prune
 result = pipe.run(messages)
@@ -105,7 +105,7 @@ pipe = Pipeline().add_step("redact", lambda msgs: [
 Use independently:
 
 ```python
-from clorfy_optimize import deduplicate, merge_system_messages, truncate_messages
+from r0ine_optimize import deduplicate, merge_system_messages, truncate_messages
 
 clean = deduplicate(messages, threshold=1.0)
 merged = merge_system_messages(messages)
@@ -123,7 +123,7 @@ truncated = truncate_messages(messages, max_tokens_per_message=300)
 Custom profiles:
 
 ```python
-from clorfy_optimize import Profile
+from r0ine_optimize import Profile
 
 my_profile = Profile(
     name="custom",
@@ -138,18 +138,18 @@ pipe = Pipeline(my_profile)
 ## CLI
 
 ```bash
-clorfy-optimize analyze conversation.json --profile chat
-clorfy-optimize analyze conversation.json --profile code --pipeline
-clorfy-optimize profiles
-clorfy-optimize cache stats
-clorfy-optimize cache purge
-clorfy-optimize cache clear
+r0ine-optimize analyze conversation.json --profile chat
+r0ine-optimize analyze conversation.json --profile code --pipeline
+r0ine-optimize profiles
+r0ine-optimize cache stats
+r0ine-optimize cache purge
+r0ine-optimize cache clear
 ```
 
 ## Architecture
 
 ```
-src/clorfy_optimize/
+src/r0ine_optimize/
 ├── counter.py           # TokenCounter (tiktoken or fallback)
 ├── cache.py             # ResponseCache (SQLite, TTL, stats)
 ├── pruner.py            # message pruning (budget + keep_last)
@@ -173,15 +173,15 @@ src/clorfy_optimize/
 pip install -e ".[dev]"
 pytest
 ruff check src tests
-mypy src/clorfy_optimize --ignore-missing-imports
+mypy src/r0ine_optimize --ignore-missing-imports
 ```
 
-## clorfy family
+## r0ine family
 
 | Project | Purpose |
 |---|---|
 | **clorfy-ai** | Prompt engineering and optimization |
-| **clorfy-optimize** | Token savings (pruning, caching, pipelines) |
+| **r0ine-optimize** | Token savings (pruning, caching, pipelines) |
 | *clorfy-memory* | Long-term LLM memory management (planned) |
 | *clorfy-router* | Multi-model routing (planned) |
 | *clorfy-guard* | LLM output safety filters (planned) |
@@ -194,16 +194,16 @@ MIT
 
 ## Turkce
 
-LLM'lere gonderdigin token miktarini azaltan kutuphane + CLI. **clorfy** AI arac ailesinin token tasarrufu tarafi.
+LLM'lere gonderdigin token miktarini azaltan kutuphane + CLI. **r0ine** AI arac ailesinin token tasarrufu tarafi.
 
 Uc temel mekanizma: yanit onbellekleme (SQLite + TTL), gecmis budama (butce + son N tur), senaryo profilleri (code/chat/plan). Ustune Pipeline ile composable optimizasyon zincirleri, strateji modulleri (dedup, truncate, merge) ve async dekorator destegi.
 
-Kurulum: `pip install clorfy-optimize`
+Kurulum: `pip install r0ine-optimize`
 
 Tek satirda entegrasyon:
 
 ```python
-from clorfy_optimize import optimize
+from r0ine_optimize import optimize
 
 @optimize(profile="chat")
 def call_llm(messages: list[dict]) -> str:
@@ -213,7 +213,7 @@ def call_llm(messages: list[dict]) -> str:
 Pipeline kullanimi:
 
 ```python
-from clorfy_optimize import Pipeline
+from r0ine_optimize import Pipeline
 
 pipe = Pipeline("chat")
 result = pipe.run(messages)
